@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: tests
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:///cyclopathe.db
+      DATA_SOURCE: official_sites
+    volumes:
+      - .:/app
+      - /app/.venv
+      - /app/__pycache__
+    command: |
+      sh -c "
+      echo '🚀 Démarrage serveur + tests design...' &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
+      sleep 4 &&
+      pytest tests/test_design.py -v --tb=short
+      "
+
+  # Service production (sans tests)
+  prod:
+    build:
+      context: .
+      target: default
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: sqlite:///cyclopathe.db
+      DATA_SOURCE: official_sites
+    restart: unless-stopped
