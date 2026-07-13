@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="layout">
+  <aside class="frames-panel">
+    <h2>1. Choisis un cadre</h2>
+
+    <!-- Tabs par discipline -->
+    <div class="discipline-tabs">
+      <button class="tab-btn active" data-discipline="">
+        Tous
+        <span class="badge-count">{{ frames|length }}</span>
+      </button>
+      <button class="tab-btn" data-discipline="road">
+        Route
+        <span class="badge-count">{{ road_count }}</span>
+      </button>
+      <button class="tab-btn" data-discipline="gravel">
+        Gravel
+        <span class="badge-count">{{ gravel_count }}</span>
+      </button>
+    </div>
+
+    <!-- Filtres compacts -->
+    <form class="filters" hx-get="/frames" hx-target="#frame-list" hx-trigger="change" hx-vals='{"page": "1"}'>
+      <input type="hidden" name="discipline" id="discipline-input" value="">
+      <label>Marque
+        <select name="brand">
+          <option value="">Toutes</option>
+          {% for b in brands %}<option value="{{ b }}">{{ b }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Année
+        <select name="year">
+          <option value="">Toutes</option>
+          {% for y in years %}<option value="{{ y }}">{{ y }}</option>{% endfor %}
+        </select>
+      </label>
+    </form>
+
+    <div id="frame-list">
+      {% include "partials/frame_list.html" %}
+    </div>
+  </aside>
+
+  <section class="configurator-panel">
+    <h2>2. Assemble &amp; compare</h2>
+    <div id="configurator">
+      <p class="empty">Sélectionne un cadre à gauche pour commencer la configuration.</p>
+    </div>
+  </section>
+</section>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+
+    const discipline = this.getAttribute('data-discipline');
+    document.getElementById('discipline-input').value = discipline;
+
+    const form = document.querySelector('.filters');
+    const url = '/frames?discipline=' + encodeURIComponent(discipline) +
+      '&brand=' + encodeURIComponent(form.brand.value || '') +
+      '&year=' + encodeURIComponent(form.year.value || '') +
+      '&page=1&per_page=5';
+
+    htmx.ajax('GET', url, {target: '#frame-list', swap: 'innerHTML'});
+  });
+});
+</script>
+{% endblock %}
