@@ -1,0 +1,33 @@
+{% for f in frames %}
+<li class="frame-card">
+  <button type="button"
+          hx-post="/configure"
+          hx-vals='{"frame_id": "{{ f.id }}"}'
+          hx-target="#configurator"
+          hx-swap="outerHTML">
+    <div class="card-header">
+      <div>
+        <span class="badge {{ f.discipline }}">{{ 'Route' if f.discipline == 'road' else 'Gravel' }}</span>
+        <span class="name">{{ f.brand }} {{ f.model }}</span>
+      </div>
+      <span class="price">{{ "%.0f"|format(f.price) }}€</span>
+    </div>
+    <span class="meta">
+      <span>{{ f.year }}</span>
+      <span>{{ (f.weight_g / 1000) | round(2) }} kg</span>
+      <span>{{ f.brake_type }} · {{ f.max_tire_mm }}mm</span>
+    </span>
+  </button>
+</li>
+{% endfor %}
+
+{% if has_next %}
+<li style="list-style: none; grid-column: 1 / -1;">
+  <button class="load-more-btn"
+          hx-get="/frames/append?discipline={{ discipline }}&brand={{ brand }}&year={{ year }}&page={{ page + 1 }}&per_page={{ per_page }}"
+          hx-target=".load-more-btn"
+          hx-swap="outerHTML">
+    ⬇️ Charger plus
+  </button>
+</li>
+{% endif %}
