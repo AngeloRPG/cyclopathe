@@ -1,0 +1,5 @@
+# Outils de développement et tests
+-r requirements.txt
+playwright==1.47.*
+pytest==8.3.*
+pytest-asyncio==0.24.*
